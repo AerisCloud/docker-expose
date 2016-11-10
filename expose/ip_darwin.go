@@ -7,7 +7,7 @@ import (
 )
 
 // we find the interface by parsing the "route" cmd output
-func default_interface() (string, error) {
+func defaultIf() (string, error) {
 	cmd := exec.Command("route", "-n", "get", "default")
 	out, err := cmd.Output()
 	if err != nil {
@@ -49,8 +49,8 @@ func ifconfig(iface string) (string, error) {
 }
 
 // returns the IP of the default interface
-func local_ip() (string, error) {
-	iface, err := default_interface()
+func localIP() (string, error) {
+	iface, err := defaultIf()
 	if err != nil {
 		return "", err
 	}

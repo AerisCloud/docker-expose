@@ -7,7 +7,7 @@ import (
 )
 
 // we parse the output of "ip route" to retrieve the default interface
-func ip_route(res map[string]string) error {
+func ipRoute(res map[string]string) error {
 	// parse the output of the ip route command to get the default gateway
 	cmd := exec.Command("ip", "route")
 	out, err := cmd.Output()
@@ -24,17 +24,17 @@ func ip_route(res map[string]string) error {
 
 		// parse output
 		name := fields[0]
-		route_data := make(map[string]string)
+		routeData := make(map[string]string)
 		var key string
 		for _, field := range fields[1:] {
 			if key == "" {
 				key = field
 				continue
 			}
-			route_data[key] = field
+			routeData[key] = field
 			key = ""
 		}
-		res[name] = route_data["dev"]
+		res[name] = routeData["dev"]
 	}
 
 	return nil
@@ -61,7 +61,7 @@ func route(res map[string]string) error {
 }
 
 // get the default interface from either "ip route" or "route"
-func get_routes() (map[string]string, error) {
+func getRoutes() (map[string]string, error) {
 	res := make(map[string]string)
 
 	_, err := exec.LookPath("ip")
@@ -77,12 +77,12 @@ func get_routes() (map[string]string, error) {
 	}
 
 	// otherwise run ip route
-	err = ip_route(res)
+	err = ipRoute(res)
 	return res, err
 }
 
-func default_interface() (string, error) {
-	routes, err := get_routes()
+func defaultIf() (string, error) {
+	routes, err := getRoutes()
 	if err != nil {
 		return "", nil
 	}
@@ -91,10 +91,10 @@ func default_interface() (string, error) {
 		return iface, nil
 	}
 
-	return "", fmt.Errorf("default interface not found!")
+	return "", fmt.Errorf("default interface not found")
 }
 
-func ip_addr(iface string) (string, error) {
+func ipAddr(iface string) (string, error) {
 	cmd := exec.Command("ip", "addr", "show", iface)
 	out, err := cmd.Output()
 	if err != nil {
@@ -134,8 +134,8 @@ func ifconfig(iface string) (string, error) {
 	return "", fmt.Errorf("no valid ipv4 found for iface %s", iface)
 }
 
-func local_ip() (string, error) {
-	iface, err := default_interface()
+func localIP() (string, error) {
+	iface, err := defaultIf()
 	if err != nil {
 		return "", err
 	}
@@ -150,5 +150,5 @@ func local_ip() (string, error) {
 		return ifconfig(iface)
 	}
 
-	return ip_addr(iface)
+	return ipAddr(iface)
 }
